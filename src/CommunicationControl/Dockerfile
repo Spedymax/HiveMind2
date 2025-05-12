@@ -11,6 +11,6 @@ COPY --from=build /app/out ./
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Development
 
-EXPOSE 8880
+EXPOSE 8080
 ENTRYPOINT
 ["dotnet", "DevOpsProject.CommunicationControl.API.dll"]
