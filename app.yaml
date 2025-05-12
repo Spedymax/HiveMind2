@@ -1,0 +1,62 @@
+name: hive-emulator
+services:
+  - name: map-client
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: ${GITHUB_REPO}
+    source_dir: src/MapClient
+    build_command: npm install && npm run build
+    run_command: npm start
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: REACT_APP_API_URL
+        value: ${COMMUNICATION_CONTROL_URL}
+
+  - name: communication-control
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: ${GITHUB_REPO}
+    source_dir: src/CommunicationControl
+    build_command: dotnet publish -p:PublishProfile=FolderProfile --artifacts-path=build/CommunicationControl DevOpsProject/DevOpsProject.CommunicationControl.API.csproj
+    run_command: dotnet DevOpsProject.CommunicationControl.API.dll
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Redis__ConnectionString
+        value: ${REDIS_URL}
+      - key: HiveMind__Url
+        value: ${HIVE_MIND_URL}
+
+  - name: hive-mind
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: ${GITHUB_REPO}
+    source_dir: src/CommunicationControl
+    build_command: dotnet publish -p:PublishProfile=FolderProfile --artifacts-path=build/HiveMind DevOpsProject/DevOpsProject.HiveMind.API.csproj
+    run_command: dotnet DevOpsProject.HiveMind.API.dll
+    http_port: 8081
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Redis__ConnectionString
+        value: ${REDIS_URL}
+
+databases:
+  - engine: REDIS
+    name: redis
+    production: false
+    cluster_name: redis-cluster
+    db_name: default
+    db_user: default 
