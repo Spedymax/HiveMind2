@@ -12,5 +12,4 @@ ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Development
 
 EXPOSE 8080
-ENTRYPOINT
-["dotnet", "DevOpsProject.CommunicationControl.API.dll"]
+ENTRYPOINT ["dotnet", "DevOpsProject.CommunicationControl.API.dll"]
