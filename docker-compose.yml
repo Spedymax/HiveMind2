@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  map-client:
+    build:
+      context: ./src/MapClient
+      dockerfile: Dockerfile
+    ports:
+      # nginx усередині контейнера слухає 80,
+      # назовні відкриваємо звичний для проєкту 3000
+      - "3000:3000"
+    depends_on:
+      - redis
+      - communication-control
+      - hive-mind
+
+  communication-control:
+    build:
+      context: ./src/CommunicationControl
+      dockerfile: Dockerfile.CommunicationControl
+    environment:
+      # приклад змінної підключення до Redis
+      - REDIS_CONNECTION=redis:6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+
+  hive-mind:
+    build:
+      context: ./src/CommunicationControl
+      dockerfile: Dockerfile.HiveMind
+    environment:
+      - REDIS_CONNECTION=redis:6379
+    ports:
+      # усередині контейнера ASP.NET слухає 8080,
+      # назовні ‒ 8081, щоб не конфліктувати
+      - "5149:5149"
+    depends_on:
+      - redis
+      - communication-control
